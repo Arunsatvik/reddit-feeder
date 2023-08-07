@@ -1,59 +1,115 @@
-/* CSS for RedditBrowser component */
+body {
+  margin: 0;
+  overflow: hidden; /* Disable scroll for the entire page */
+}
+
 .reddit-browser {
-    display: flex;
-    border: 1px solid #ddd;
-    border-color: rgb(143, 143, 255); /* Border for the entire RedditBrowser component */
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Set the height of the RedditBrowser to fill the viewport */
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: rgb(143, 143, 255);
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1; /* Set a higher z-index to keep the navbar on top */
+}
+
+.navbar h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar form {
+  display: flex;
+  align-items: center;
+  justify-content:center;
+}
+
+.navbar input[type="text"] {
+  padding: 5px;
+  border-radius: 12px;
+  background-color: #d8d5ff;
+  color: rgb(0, 0, 0);
+}
+
+.navbar button {
+  padding: 5px 10px;
   
-  .sidebar {
-    flex: 1;
-    padding: 10px;
-    border-right: 1px solid #ddd; /* Right border for the sidebar */
-    border-color: rgb(143, 143, 255);
-  }
-  
-  .content {
-    flex: 3;
-    padding: 10px;
-    border-right: 1px solid #ddd;
-    border-color: rgb(143, 143, 255); /* Right border for the list of posts */
-  }
-  
-  .post-details {
-    flex: 3;
-    padding: 10px;
-    overflow-y: scroll; /* Enable scrolling if content exceeds the available height */
-    height: 100vh; /* Set a fixed height for the post-details div */
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  li {
-    cursor: pointer;
-    padding: 5px;
-  }
-  
-  li.active {
-    background-color: lightblue;
-  }
-  
-  li:hover {
-    background-color: lightgray;
-  }
-  
-  /* Scrollable style for the list of posts */
-  .content ul {
-    max-height: calc(100vh - 120px); /* Adjust the height to leave space for the header and padding */
-    overflow-y: auto; /* Enable scrolling if the list exceeds the available height */
-  }
-  
-  img {
-    border-radius: 4px;
-    padding: 30px;
-    width: 400px;
-  }
-  
+  background-color: #d8d5ff;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+  margin-left: 15px; /* Add left margin to create space */
+  margin-right: 60px;
+  border-radius: 12px;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  margin-top: 50px;
+  overflow: hidden; /* Hide any content that overflows the container */
+}
+
+.sidebar {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto; /* Enable scrolling for the list of subreddits */
+  height: 100%; /* Make the sidebar occupy the full height of its container */
+  max-height: calc(100vh - 50px); /* Adjust the max-height to leave space for the fixed navbar */
+}
+
+.content {
+  flex: 2;
+  padding: 10px;
+  overflow-y: auto; /* Enable scrolling for the list of posts */
+  max-height: calc(100vh - 50px); /* Adjust the max-height to leave space for the fixed navbar */
+}
+
+
+.post-details {
+  flex: 2;
+  padding: 10px;
+  overflow-y: auto; /* Enable scrolling for the post details */
+  max-height: calc(100vh - 50px); /* Adjust the max-height to leave space for the fixed navbar */
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  cursor: pointer;
+  padding: 5px;
+}
+
+li.active {
+  background-color: rgb(185, 185, 255);
+}
+
+li:hover {
+  background-color: lightgray;
+}
+
+
+.content ul {
+  max-height: calc(100vh - 200px); 
+  overflow-y: auto; 
+}
+
+img {
+  border-radius: 4px;
+  padding: 30px;
+  width: 400px;
+}
