@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import "./redditbrowser.css"
+import './redditbrowser.css';
 
 const RedditBrowser = () => {
-
-  const [darkMode, setDarkMode] = useState(false); // Add dark mode state
-
-  const toggleDarkMode = () => {
-    setDarkMode(prevDarkMode => !prevDarkMode);
-  };
-
+  const [darkMode, setDarkMode] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [undoHistory, setUndoHistory] = useState([]);
 
   const [subreddits, setSubreddits] = useState([]);
   const [selectedSubreddit, setSelectedSubreddit] = useState(null);
@@ -27,17 +23,17 @@ const RedditBrowser = () => {
   useEffect(() => {
     // Load saved state from local storage on component mount
     const savedState = localStorage.getItem('redditBrowserState');
-  
+
     if (savedState && !isInitialMount) {
       const parsedState = JSON.parse(savedState);
-  
+
       if (parsedState.selectedSubreddit) {
         setSelectedSubreddit(parsedState.selectedSubreddit);
       }
       if (parsedState.sortOrder) {
         setSortOrder(parsedState.sortOrder);
       }
-      if (parsedState.selectedPost) { // Update state for selected post
+      if (parsedState.selectedPost) {
         setSelectedPost(parsedState.selectedPost);
       }
       if (parsedState.currentPostIndex >= 0) {
@@ -49,8 +45,11 @@ const RedditBrowser = () => {
           ...parsedState.postHistory,
         ]);
       }
+      if (parsedState.darkMode !== undefined) {
+        setDarkMode(parsedState.darkMode);
+      }
     }
-  
+
     setIsInitialMount(false);
   }, [isInitialMount]);
 
@@ -68,16 +67,17 @@ const RedditBrowser = () => {
       const stateToSave = JSON.stringify({
         selectedSubreddit,
         sortOrder,
-        selectedPost
+        selectedPost,
+        darkMode,
       });
       localStorage.setItem('redditBrowserState', stateToSave);
     }
-  }, [selectedSubreddit, sortOrder, selectedPost, isInitialMount]);
+  }, [selectedSubreddit, sortOrder, selectedPost, darkMode, isInitialMount]);
 
   useEffect(() => {
-    setCanGoBack(currentPostIndex > 0);
-    setCanGoForward(currentPostIndex < postHistory.length - 1);
-  }, [currentPostIndex, postHistory]);
+    setCanGoBack(history.length > 0);
+    setCanGoForward(undoHistory.length > 0);
+  }, [history, undoHistory]);
 
   useEffect(() => {
     if (inputSubreddit.length > 0) {
@@ -127,21 +127,23 @@ const RedditBrowser = () => {
   const handleSubredditClick = (subreddit) => {
     setSelectedSubreddit(subreddit.data.display_name);
     setSelectedPost(null);
-    setPostHistory([]); // Reset post history when a new subreddit is selected
-    setCurrentPostIndex(-1); // Reset current post index
+    setPostHistory([]);
+    setCurrentPostIndex(-1);
+    updateHistory();
   };
 
   const handlePostClick = (post) => {
     setSelectedPost(post);
     if (currentPostIndex !== postHistory.length - 1) {
-      // If the current post is not the last post in history, remove the forward history and add the new post to history
-      setPostHistory((prevHistory) => prevHistory.slice(0, currentPostIndex + 1).concat(post));
+      setPostHistory((prevHistory) =>
+        prevHistory.slice(0, currentPostIndex + 1).concat(post)
+      );
       setCurrentPostIndex((prevIndex) => prevIndex + 1);
     } else {
-      // If the current post is the last post in history, simply add the new post to history
       setPostHistory((prevHistory) => [...prevHistory, post]);
       setCurrentPostIndex((prevIndex) => prevIndex + 1);
     }
+    updateHistory();
   };
 
   const handleSortOrderChange = (event) => {
@@ -159,20 +161,53 @@ const RedditBrowser = () => {
   };
 
   const handleBackClick = () => {
-    if (canGoBack) {
-      setCurrentPostIndex((prevIndex) => prevIndex - 1);
+    if (history.length > 0) {
+      const prevState = history.pop();
+      setUndoHistory([...undoHistory, prevState]);
+      setHistory([...history]);
+      applyState(prevState);
     }
   };
 
   const handleForwardClick = () => {
-    if (canGoForward) {
-      setCurrentPostIndex((prevIndex) => prevIndex + 1);
+    if (undoHistory.length > 0) {
+      const nextState = undoHistory.pop();
+      setHistory([...history, nextState]);
+      setUndoHistory([...undoHistory]);
+      applyState(nextState);
     }
   };
 
   const isImageUrl = (url) => {
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-    return imageExtensions.some((extension) => url.toLowerCase().endsWith(extension));
+    return imageExtensions.some((extension) =>
+      url.toLowerCase().endsWith(extension)
+    );
+  };
+
+  const updateHistory = () => {
+    setUndoHistory([]);
+    setHistory([
+      ...history,
+      {
+        selectedSubreddit,
+        selectedPost,
+        darkMode,
+        // ... (other state variables)
+      },
+    ]);
+  };
+
+  const applyState = (state) => {
+    setSelectedSubreddit(state.selectedSubreddit);
+    setSelectedPost(state.selectedPost);
+    setDarkMode(state.darkMode);
+    // Apply other state variables as needed
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevDarkMode) => !prevDarkMode);
+    updateHistory();
   };
 
   return (
@@ -180,16 +215,21 @@ const RedditBrowser = () => {
       <div className="navbar">
         <h2>Reddit Browser</h2>
         <div className="move-buttons">
-          {/* Back Button */}
-          <button className="nav-button" onClick={handleBackClick} disabled={!canGoBack}>
+          <button
+            className="nav-button"
+            onClick={handleBackClick}
+            disabled={!canGoBack}
+          >
             Back
           </button>
-          {/* Forward Button */}
-          <button className="nav-button" onClick={handleForwardClick} disabled={!canGoForward}>
+          <button
+            className="nav-button"
+            onClick={handleForwardClick}
+            disabled={!canGoForward}
+          >
             Forward
           </button>
         </div>
-
         <div className="dropdown-menu">
           <button className="dropdown-toggle">Menu</button>
           <div className="dropdown-content">
@@ -198,8 +238,6 @@ const RedditBrowser = () => {
             </button>
           </div>
         </div>
-
-        
         <form onSubmit={handleSubredditSubmit}>
           <div className="search-container">
             <input
@@ -208,7 +246,6 @@ const RedditBrowser = () => {
               value={inputSubreddit}
               onChange={handleSubredditInputChange}
             />
-            {/* Show autocomplete dropdown */}
             {inputSubreddit.length > 0 && (
               <div className="autocomplete-dropdown">
                 {autocompleteResults.map((result) => (
@@ -226,7 +263,6 @@ const RedditBrowser = () => {
           <button type="submit">Submit</button>
         </form>
       </div>
-
       <div className="container">
         <div className="sidebar">
           <h2>Subreddits</h2>
@@ -235,14 +271,17 @@ const RedditBrowser = () => {
               <li
                 key={subreddit.data.display_name}
                 onClick={() => handleSubredditClick(subreddit)}
-                className={selectedSubreddit === subreddit.data.display_name ? 'active' : ''}
+                className={
+                  selectedSubreddit === subreddit.data.display_name
+                    ? 'active'
+                    : ''
+                }
               >
                 {subreddit.data.display_name}
               </li>
             ))}
           </ul>
         </div>
-
         <div className="content">
           {selectedSubreddit ? (
             <>
@@ -250,7 +289,10 @@ const RedditBrowser = () => {
               <div>
                 <label>
                   Sort By
-                  <select value={sortOrder} onChange={handleSortOrderChange}>
+                  <select
+                    value={sortOrder}
+                    onChange={handleSortOrderChange}
+                  >
                     <option value="hot">Hot</option>
                     <option value="new">New</option>
                   </select>
@@ -258,14 +300,18 @@ const RedditBrowser = () => {
               </div>
             </>
           ) : (
-            <h2></h2>
+            <h2>Hello, Please Select a SubReddit</h2>
           )}
           <ul>
             {posts.map((post) => (
               <li
                 key={post.data.id}
                 onClick={() => handlePostClick(post)}
-                className={selectedPost && selectedPost.data.id === post.data.id ? 'active' : ''}
+                className={
+                  selectedPost && selectedPost.data.id === post.data.id
+                    ? 'active'
+                    : ''
+                }
               >
                 <h3>{post.data.title}</h3>
                 <p>Author: {post.data.author}</p>
@@ -273,7 +319,6 @@ const RedditBrowser = () => {
             ))}
           </ul>
         </div>
-
         {selectedPost && (
           <div className="post-details">
             <div className="post-info">
@@ -282,9 +327,13 @@ const RedditBrowser = () => {
             </div>
             <p>{selectedPost.data.selftext}</p>
             {isImageUrl(selectedPost.data.url) ? (
-              <img src={selectedPost.data.url} alt='new' />
+              <img src={selectedPost.data.url} alt="new" />
             ) : (
-              <a href={selectedPost.data.url} target="_blank" rel="noopener noreferrer">
+              <a
+                href={selectedPost.data.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {selectedPost.data.url}
               </a>
             )}
