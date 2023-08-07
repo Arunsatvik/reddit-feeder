@@ -14,26 +14,62 @@ const RedditBrowser = () => {
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
   const [currentPostIndex, setCurrentPostIndex] = useState(-1);
+  const [isInitialMount, setIsInitialMount] = useState(true);
+
+  useEffect(() => {
+    // Load saved state from local storage on component mount
+    const savedState = localStorage.getItem('redditBrowserState');
+  
+    if (savedState && !isInitialMount) {
+      const parsedState = JSON.parse(savedState);
+  
+      if (parsedState.selectedSubreddit) {
+        setSelectedSubreddit(parsedState.selectedSubreddit);
+      }
+      if (parsedState.sortOrder) {
+        setSortOrder(parsedState.sortOrder);
+      }
+      if (parsedState.selectedPost) { // Update state for selected post
+        setSelectedPost(parsedState.selectedPost);
+      }
+      if (parsedState.currentPostIndex >= 0) {
+        setCurrentPostIndex(parsedState.currentPostIndex);
+      }
+      if (parsedState.postHistory) {
+        setPostHistory((prevPostHistory) => [
+          ...prevPostHistory,
+          ...parsedState.postHistory,
+        ]);
+      }
+    }
+  
+    setIsInitialMount(false);
+  }, [isInitialMount]);
+
+  useEffect(() => {
+    // Load selected post index from local storage
+    const savedSelectedPostIndex = localStorage.getItem('selectedPostIndex');
+    if (savedSelectedPostIndex) {
+      setCurrentPostIndex(parseInt(savedSelectedPostIndex));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save state to local storage whenever it changes
+    if (!isInitialMount) {
+      const stateToSave = JSON.stringify({
+        selectedSubreddit,
+        sortOrder,
+        selectedPost
+      });
+      localStorage.setItem('redditBrowserState', stateToSave);
+    }
+  }, [selectedSubreddit, sortOrder, selectedPost, isInitialMount]);
 
   useEffect(() => {
     setCanGoBack(currentPostIndex > 0);
     setCanGoForward(currentPostIndex < postHistory.length - 1);
   }, [currentPostIndex, postHistory]);
-
-  useEffect(() => {
-    // When a new subreddit is selected, reset the current post index and post history
-    setCurrentPostIndex(-1);
-    setPostHistory([]);
-  }, [selectedSubreddit]);
-
-  useEffect(() => {
-    if (selectedSubreddit && currentPostIndex >= 0) {
-      // When the current post index changes, update the selected post based on the post history
-      setSelectedPost(postHistory[currentPostIndex]);
-    }
-  }, [currentPostIndex, postHistory, selectedSubreddit]);
-
-
 
   useEffect(() => {
     if (inputSubreddit.length > 0) {
@@ -67,7 +103,6 @@ const RedditBrowser = () => {
         .get(`https://www.reddit.com/r/${selectedSubreddit}/${sortOrder}.json`)
         .then((response) => {
           setPosts(response.data.data.children);
-          setSelectedPost(null);
         })
         .catch((error) => {
           console.error('Error fetching posts:', error);
@@ -75,10 +110,17 @@ const RedditBrowser = () => {
     }
   }, [selectedSubreddit, sortOrder]);
 
+  useEffect(() => {
+    if (currentPostIndex >= 0 && currentPostIndex < postHistory.length) {
+      setSelectedPost(postHistory[currentPostIndex]);
+    }
+  }, [currentPostIndex, postHistory]);
+
   const handleSubredditClick = (subreddit) => {
     setSelectedSubreddit(subreddit.data.display_name);
     setSelectedPost(null);
     setPostHistory([]); // Reset post history when a new subreddit is selected
+    setCurrentPostIndex(-1); // Reset current post index
   };
 
   const handlePostClick = (post) => {
@@ -183,22 +225,22 @@ const RedditBrowser = () => {
         </div>
 
         <div className="content">
-        {selectedSubreddit ? (
-          <>
-            <h2>{selectedSubreddit}</h2>
-            <div>
-              <label>
-                Sort By
-                <select value={sortOrder} onChange={handleSortOrderChange}>
-                  <option value="hot">Hot</option>
-                  <option value="new">New</option>
-                </select>
-              </label>
-            </div>
-          </>
-        ) : (
-          <h2></h2>
-        )}
+          {selectedSubreddit ? (
+            <>
+              <h2>{selectedSubreddit}</h2>
+              <div>
+                <label>
+                  Sort By
+                  <select value={sortOrder} onChange={handleSortOrderChange}>
+                    <option value="hot">Hot</option>
+                    <option value="new">New</option>
+                  </select>
+                </label>
+              </div>
+            </>
+          ) : (
+            <h2></h2>
+          )}
           <ul>
             {posts.map((post) => (
               <li
