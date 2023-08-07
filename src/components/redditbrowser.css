@@ -14,7 +14,7 @@ body {
   align-items: center;
   padding: 10px;
   background-color: rgb(143, 143, 255);
-  color: #fff;
+  color: #000000;
   position: fixed;
   top: 0;
   left: 0;
@@ -30,9 +30,8 @@ body {
 }
 
 .navbar form {
-  display: flex;
-  align-items: center;
-  justify-content:center;
+  position: relative; /* Set the form container as relative for absolute positioning of dropdown */
+  margin-right: 60px;
 }
 
 .navbar input[type="text"] {
@@ -40,7 +39,10 @@ body {
   border-radius: 12px;
   background-color: #d8d5ff;
   color: rgb(0, 0, 0);
+  width: 200px; /* Set a specific width for the input */
 }
+
+
 
 .navbar button {
   padding: 5px 10px;
@@ -48,9 +50,30 @@ body {
   background-color: #d8d5ff;
   color: rgb(0, 0, 0);
   cursor: pointer;
-  margin-left: 15px; /* Add left margin to create space */
-  margin-right: 60px;
+  margin-left: 70px; /* Add left margin to create space */
   border-radius: 12px;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%; /* Position below the input field */
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 2; /* Set a higher z-index for the autocomplete dropdown to appear on top */
+}
+
+.autocomplete-option {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.autocomplete-option:hover {
+  background-color: #ddd;
 }
 
 .container {

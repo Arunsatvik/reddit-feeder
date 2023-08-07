@@ -9,6 +9,21 @@ const RedditBrowser = () => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [sortOrder, setSortOrder] = useState('hot'); // Default sort order is 'hot'
   const [inputSubreddit, setInputSubreddit] = useState('');
+  const [autocompleteResults, setAutocompleteResults] = useState([]);
+
+  useEffect(() => {
+    if (inputSubreddit.length > 0) {
+      axios.get(`https://www.reddit.com/subreddits/search.json?q=${inputSubreddit}`)
+        .then((response) => {
+          setAutocompleteResults(response.data.data.children);
+        })
+        .catch((error) => {
+          console.error('Error fetching autocomplete results:', error);
+        });
+    } else {
+      setAutocompleteResults([]); // Clear autocomplete results when inputSubreddit is empty
+    }
+  }, [inputSubreddit]);
 
   useEffect(() => {
     // Fetch list of subreddits
@@ -65,14 +80,30 @@ const RedditBrowser = () => {
   return (
     <div className="reddit-browser">
       <div className="navbar">
-      <h2>Reddit Browser</h2>
+        <h2>Reddit Browser</h2>
         <form onSubmit={handleSubredditSubmit}>
-          <input
-            type="text"
-            placeholder="Search subreddit"
-            value={inputSubreddit}
-            onChange={handleSubredditInputChange}
-          />
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search subreddit"
+              value={inputSubreddit}
+              onChange={handleSubredditInputChange}
+            />
+            {/* Show autocomplete dropdown */}
+            {inputSubreddit.length > 0 && (
+              <div className="autocomplete-dropdown">
+                {autocompleteResults.map((result) => (
+                  <div
+                    key={result.data.display_name}
+                    className="autocomplete-option"
+                    onClick={() => handleSubredditClick(result)}
+                  >
+                    {result.data.display_name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <button type="submit">Submit</button>
         </form>
       </div>
