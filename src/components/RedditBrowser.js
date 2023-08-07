@@ -3,6 +3,14 @@ import axios from 'axios';
 import "./redditbrowser.css"
 
 const RedditBrowser = () => {
+
+  const [darkMode, setDarkMode] = useState(false); // Add dark mode state
+
+  const toggleDarkMode = () => {
+    setDarkMode(prevDarkMode => !prevDarkMode);
+  };
+
+
   const [subreddits, setSubreddits] = useState([]);
   const [selectedSubreddit, setSelectedSubreddit] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -168,7 +176,7 @@ const RedditBrowser = () => {
   };
 
   return (
-    <div className="reddit-browser">
+    <div className={`reddit-browser ${darkMode ? 'dark-mode' : ''}`}>
       <div className="navbar">
         <h2>Reddit Browser</h2>
         <div className="move-buttons">
@@ -181,6 +189,17 @@ const RedditBrowser = () => {
             Forward
           </button>
         </div>
+
+        <div className="dropdown-menu">
+          <button className="dropdown-toggle">Menu</button>
+          <div className="dropdown-content">
+            <button onClick={toggleDarkMode}>
+              {darkMode ? 'Light Mode' : 'Dark Mode'}
+            </button>
+          </div>
+        </div>
+
+        
         <form onSubmit={handleSubredditSubmit}>
           <div className="search-container">
             <input

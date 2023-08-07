@@ -141,3 +141,52 @@ img {
   padding: 30px;
   width: 400px;
 }
+
+.dark-mode {
+  background-color: #222;
+  color: #fff;
+}
+
+.dropdown-menu {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px; /* Add margin to separate from other elements */
+}
+
+.dropdown-toggle {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: bold; /* Make the toggle button text bold */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  border-radius: 4px; /* Add border radius to the dropdown */
+  z-index: 1;
+}
+
+.dropdown-menu:hover .dropdown-content {
+  display: block;
+}
+
+/* Style the dark mode toggle button */
+.dropdown-content button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease; /* Add smooth transition */
+}
+
+.dropdown-content button:hover {
+  background-color: #ddd; /* Change background color on hover */
+}
