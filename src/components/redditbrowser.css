@@ -1,0 +1,59 @@
+/* CSS for RedditBrowser component */
+.reddit-browser {
+    display: flex;
+    border: 1px solid #ddd;
+    border-color: rgb(143, 143, 255); /* Border for the entire RedditBrowser component */
+  }
+  
+  .sidebar {
+    flex: 1;
+    padding: 10px;
+    border-right: 1px solid #ddd; /* Right border for the sidebar */
+    border-color: rgb(143, 143, 255);
+  }
+  
+  .content {
+    flex: 3;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    border-color: rgb(143, 143, 255); /* Right border for the list of posts */
+  }
+  
+  .post-details {
+    flex: 3;
+    padding: 10px;
+    overflow-y: scroll; /* Enable scrolling if content exceeds the available height */
+    height: 100vh; /* Set a fixed height for the post-details div */
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    cursor: pointer;
+    padding: 5px;
+  }
+  
+  li.active {
+    background-color: lightblue;
+  }
+  
+  li:hover {
+    background-color: lightgray;
+  }
+  
+  /* Scrollable style for the list of posts */
+  .content ul {
+    max-height: calc(100vh - 120px); /* Adjust the height to leave space for the header and padding */
+    overflow-y: auto; /* Enable scrolling if the list exceeds the available height */
+  }
+  
+  img {
+    border-radius: 4px;
+    padding: 30px;
+    width: 400px;
+  }
+  
