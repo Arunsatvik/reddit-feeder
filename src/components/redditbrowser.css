@@ -19,7 +19,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1; /* Set a higher z-index to keep the navbar on top */
+  z-index: 1;
 }
 
 .navbar h2 {
@@ -34,6 +34,12 @@ body {
   margin-right: 60px;
 }
 
+.move-buttons {
+  display: flex;
+  align-items: center;
+  margin-right: 830px;
+}
+
 .navbar input[type="text"] {
   padding: 5px;
   border-radius: 12px;
@@ -46,11 +52,10 @@ body {
 
 .navbar button {
   padding: 5px 10px;
-  
   background-color: #d8d5ff;
   color: rgb(0, 0, 0);
   cursor: pointer;
-  margin-left: 70px; /* Add left margin to create space */
+  margin-left: 5px; /* Add left margin to create space */
   border-radius: 12px;
 }
 
